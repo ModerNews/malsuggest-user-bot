@@ -20,6 +20,7 @@ public class Client {
      */
     public Client() {
         this.driver = new FirefoxDriver();
+        driver.manage().window().maximize();
     }
 
     private WebDriver driver;
@@ -49,6 +50,8 @@ public class Client {
 
     public void start_searching(){
         driver.get("https://malsuggest.live");
+        clear_cookies();
+        driver.navigate().refresh();
         WebElement start_search = driver.findElement(By.cssSelector(".btn-primary"));
         start_search.click();
         Cookie is_logged_in = driver.manage().getCookieNamed("is_logged_in");
@@ -58,6 +61,10 @@ public class Client {
         }
         WebElement allow_button = driver.findElement(By.cssSelector(".button--primary"));
         allow_button.click();
+    }
+
+    public void clear_cookies(){
+        driver.manage().deleteAllCookies();
     }
 
     public WebElement wait_for_recommendation_calculation() {

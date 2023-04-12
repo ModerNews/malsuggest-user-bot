@@ -1,7 +1,7 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.gruzin.malsuggest-user-bot</groupId>
+    <groupId>com.malsuggest.user-bot</groupId>
     <artifactId>malsuggest-user-bot</artifactId>
     <version>0.1</version>
 
