@@ -2,6 +2,7 @@ package src;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,6 +35,29 @@ public class ApiCaller {
                         .addParameter("offset", Integer.toString(offset))
                         .addParameter("fields", fields)
                         .build())
+                .method("GET", null)
+                .addHeader("Authorization", headers.get("Authorization"))
+                .build();
+        Response response = client.newCall(request).execute();
+        return new ObjectMapper().readValue(response.body().string(), HashMap.class);
+    }
+
+    public HashMap<String, Object> get_my_animelist() throws IOException {
+        return this.get_my_animelist(new UrlBuilder()
+                .setUri("users/@me/animelist")
+                .addParameter("limit", "1000"));
+    }
+
+    public HashMap<String, Object> get_my_animelist(@NotNull String status) throws IOException {
+        return this.get_my_animelist(new UrlBuilder()
+                .setUri("users/@me/animelist")
+                .addParameter("limit", "1000")
+                .addParameter("status", status));
+    }
+
+    public HashMap<String, Object> get_my_animelist(@NotNull UrlBuilder url) throws IOException {
+        Request request = new Request.Builder()
+                .url(url.build())
                 .method("GET", null)
                 .addHeader("Authorization", headers.get("Authorization"))
                 .build();
