@@ -14,6 +14,7 @@ public class MalApiTask extends Thread{
     public MalApiTask(String access_token) throws IOException, InterruptedException {
         this.access_token = access_token;
         this.caller = new ApiCaller(access_token);
+        cleanup();
         first_setup();
     }
 
@@ -24,7 +25,7 @@ public class MalApiTask extends Thread{
                 // TODO: Drop 100 completed titles
                 HashMap<String, Object> my_list = caller.get_my_animelist("completed");
                 ArrayList<HashMap> my_data = (ArrayList<HashMap>) my_list.get("data");
-                System.out.println("Dropping 100 completed titles from user's animelist with 100 completed titles: ");
+                System.out.println("Dropping 100 completed titles from user's animelist:");
                 drop_entries(my_data, 100);
 
                 //Adding new entries
@@ -38,26 +39,36 @@ public class MalApiTask extends Thread{
 
     public void drop_entries(ArrayList<HashMap> data, int num_of_entries) throws IOException, InterruptedException {
         for (int i = 0; i <= num_of_entries; i++) {
+            System.out.print(generate_staus_bar("Dropping", i, num_of_entries));
             int index = new Random().nextInt(data.size());
             HashMap<String, Object> temp = data.get(index);
             data.remove(index);
             HashMap node = (HashMap) temp.get("node");
-            System.out.println(node.get("id") + "; Episodes: " + node.get("num_episodes"));
             caller.delete_my_anime_list((int) node.get("id"));
             Thread.sleep(500);
         }
+        System.out.println(generate_staus_bar("Dropping", num_of_entries, num_of_entries));
+    }
+
+    public String generate_staus_bar(String name, int progress, int total) {
+        int length = 20;
+        int progress_chars = (int) (((double)progress / total) * 20);
+        String bar = "|" + "=".repeat(progress_chars) + ">" + " ".repeat(length - progress_chars) + "|";
+
+        return name + "\t" + (int) (((double) progress / total) * 100) + "% " + bar + " (" + progress + "/" + total + ")\r";
     }
 
     public void add_entries(ArrayList<HashMap> data, int num_of_entries, String status) throws InterruptedException, IOException {
         for (int i = 0; i <= num_of_entries; i++) {
+            System.out.print(generate_staus_bar(status, i, num_of_entries));
             int index = new Random().nextInt(data.size());
             HashMap<String, Object> temp = data.get(index);
             data.remove(index);
             HashMap node = (HashMap) temp.get("node");
-            System.out.println(node.get("id") + "; Episodes: " + node.get("num_episodes"));
             caller.update_my_anime_list((int) node.get("id"), status, false, new Random().nextInt(7, 11), (int) node.get("num_episodes"));
             Thread.sleep(500);
         }
+        System.out.println(generate_staus_bar(status, num_of_entries, num_of_entries));
     }
 
     public void first_setup() throws IOException, InterruptedException {
@@ -72,5 +83,12 @@ public class MalApiTask extends Thread{
             System.out.println("Updating user's animelist with " + status.getValue() + " " + status.getKey() +  " titles: ");
             add_entries(data, status.getValue(), status.getKey());
         }
+    }
+
+    public void cleanup() throws IOException, InterruptedException {
+        HashMap<String, Object> my_list = caller.get_my_animelist();
+        if (my_list.size() <= 0) { return; }
+        ArrayList<HashMap> my_data = (ArrayList<HashMap>) my_list.get("data");
+        drop_entries(my_data, my_data.size() - 1);
     }
 }
