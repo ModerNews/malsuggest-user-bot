@@ -13,21 +13,8 @@ public class ApiCaller {
     private String version = "v2";
     private OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-    public static void main(String[] args){
-        try {
-            ApiCaller caller = new ApiCaller(args[0]);
-            System.out.println(caller.get_anime_ranking(16, 70));
-            System.out.println(caller.update_my_anime_list(49854, "completed", false, 9, 12));
-            Thread.sleep(60000);
-            caller.delete_my_anime_list(49854);
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
-        }
-    }
-
-    public ApiCaller(String access_token) throws IOException {
+    public ApiCaller(String access_token){
         headers.put("Authorization", "Bearer " + access_token);
-//        headers.put("Content-Type", "application/json");
     }
 
     public HashMap<String, Object> get_anime_ranking() throws IOException {
